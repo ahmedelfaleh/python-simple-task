@@ -8,6 +8,8 @@ pipeline {
             steps {
           
                 echo 'building the application...'
+                sh 'cd app'
+                sh 'docker-compose up -d'
           
             }
     
