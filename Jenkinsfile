@@ -9,6 +9,8 @@ pipeline {
             steps {
                 
                 echo 'building the application...'
+                
+                echo 'polling test'
             
             }
         }
