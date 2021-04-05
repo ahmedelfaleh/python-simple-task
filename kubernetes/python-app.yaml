@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-app
+spec:
+  selector:
+    matchLabels:
+      app: python-app
+  template:
+    metadata:
+      labels:
+        app: python-app
+    spec:
+      imagePullSecrets:
+        - name: falehregistry
+      containers:
+      - name: python-app
+        image: elfaleh/python-app:latest
+        ports:
+        - containerPort: 5000
+        env:
+          - name: MYSQL_HOST
+            valueFrom:
+               configMapKeyRef:
+                 name: mysql-configmap
+                 key: database_url
+          - name:  MYSQL_USER
+            valueFrom:
+               secretKeyRef:
+                 name: mysql-secret
+                 key: mysql_username
+          - name: MYSQL_PASSWORD
+            valueFrom:
+               secretKeyRef:
+                 name:  mysql-secret
+                 key: mysql_password
+          - name:  MYSQL_DBNAME
+            valueFrom:
+               secretKeyRef:
+                 name: mysql-secret
+                 key: mysql_dbname
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name:  python-app-service
+spec:
+  selector:
+    app:  python-app
+  ports:
+  - protocol: TCP
+    port:  5000
+    targetPort: 5000

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - image:  mysql:8
+        name:  mysql
+        env:
+          - name:  MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name:  mysql-secret
+                key: mysql_root_password
+          - name:  MYSQL_USER
+            valueFrom:
+               secretKeyRef:
+                 name: mysql-secret
+                 key: mysql_username
+          - name: MYSQL_PASSWORD
+            valueFrom:
+               secretKeyRef:
+                 name:  mysql-secret
+                 key: mysql_password
+        volumeMounts:
+          - mountPath: "/var/lib/mysql"
+            name: nfs
+      volumes:
+      - name: nfs
+        persistentVolumeClaim:
+          claimName: nfs-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  mysql-service
+spec:
+  selector:
+    app:  mysql
+  ports:
+  - protocol: TCP
+    port:  3306
+    targetPort:  3306

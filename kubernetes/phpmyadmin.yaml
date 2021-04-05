@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpmyadmin
+spec:
+  selector:
+    matchLabels:
+      app: phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: phpmyadmin
+    spec:
+      imagePullSecrets:
+        - name: falehregistry
+      containers:
+      - name: phpmyadmin
+        image: phpmyadmin
+        ports:
+        - containerPort: 80
+        env:
+          - name: PMA_HOST
+            valueFrom:
+               configMapKeyRef:
+                 name: mysql-configmap
+                 key: database_url
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: phpmyadmin-service
+  namespace: python-app
+spec:
+  selector:
+    app:  phpmyadmin
+  ports:
+  - protocol: TCP
+    port:  80
+    targetPort: 80
